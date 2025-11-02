@@ -10,7 +10,20 @@ def main():
     rotate = rotate_image(image=images[0], angle=45)
     images.append(rotate)
     display_image(image=images[1], title="Rotated Image")
+    affine = affine_transform(image=images[0])
+    images.append(affine)
+    display_image(image=images[2], title="Affine Transformed Image")
     pass
+
+def affine_transform(image, M=None, output_size=None):
+    if M is None:
+        start_points = np.array([[50, 50], [200, 50], [50, 200]]).astype(np.float32)
+        end_points = np.array([[10, 100], [200, 50], [100, 250]]).astype(np.float32)
+        M = cv2.getAffineTransform(start_points, end_points)
+    if output_size is None:
+        output_size = (image.shape[1], image.shape[0])
+    transformed = cv2.warpAffine(image, M, output_size)
+    return transformed
 
 def rotate_image(image, angle, center=None, scale=1.0):
     (h, w) = image.shape[:2]

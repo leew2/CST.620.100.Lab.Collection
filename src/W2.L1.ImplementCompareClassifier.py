@@ -4,6 +4,8 @@ from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+
 
 def main():
     x, y = load_data()
@@ -12,6 +14,11 @@ def main():
 
     classifier = implement_classifier(x_train, y_train)
     metrics("KNN", classifier, x_test, y_test)
+    svm_classifier = implement_svm_classifier(x_train, y_train)
+    metrics("SVM", svm_classifier, x_test, y_test)
+    
+
+
 
 def metrics(name, model, x_test, y_test):
     y_pred = model.predict(x_test)
@@ -24,6 +31,10 @@ def implement_classifier(x_train, y_train):
     classifier.fit(x_train, y_train)
     return classifier
 
+def implement_svm_classifier(x_train, y_train):
+    svm_classifier = SVC(kernel='linear')
+    svm_classifier.fit(x_train, y_train)
+    return svm_classifier
 
 # End Implement Classifier -----------------------------------------------------------------
 

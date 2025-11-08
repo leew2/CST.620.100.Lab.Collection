@@ -14,14 +14,14 @@ def main():
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
     classifier = implement_classifier(x_train, y_train)
-    metrics("KNN", classifier, x_test, y_test)
     svm_classifier = implement_svm_classifier(x_train, y_train)
-    metrics("SVM", svm_classifier, x_test, y_test)
     log_reg_classifier = implement_logistic_regression_classifier(x_train, y_train)
-    metrics("Logistic Regression", log_reg_classifier, x_test, y_test)
     best_knn = GridSearchCV_model(KNeighborsClassifier(), {'n_neighbors': [3, 5, 7]}, x_train, y_train)
-    metrics("Best KNN after Grid Search", best_knn, x_test, y_test)
-
+    
+    knn = metrics("KNN", classifier, x_test, y_test)
+    svm = metrics("SVM", svm_classifier, x_test, y_test)
+    log = metrics("Logistic Regression", log_reg_classifier, x_test, y_test)
+    best = metrics("Best KNN after Grid Search", best_knn, x_test, y_test)
 
 # Grid Search CV -----------------------------------------------------------------------------
 def GridSearchCV_model(model, param_grid, x_train, y_train):
@@ -35,6 +35,7 @@ def metrics(name, model, x_test, y_test):
     y_pred = model.predict(x_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f"{name} Accuracy: {accuracy:.4f}")
+    return y_pred
 # End Metrics ------------------------------------------------------------------------------
 
 # Implement Classifier ---------------------------------------------------------------------
@@ -58,14 +59,17 @@ def implement_logistic_regression_classifier(x_train, y_train):
 # Load and view ------------------------------------------------------------------------------
 def load_data():
     digits = datasets.load_digits(return_X_y=True)
-    #print_img(digits)
     x, y = digits
-    
+    view_data(x, y)
     return x, y
 
-def print_img(img):
-    plt.imshow(img[0], cmap="gray")
-    plt.axis("off")
+def view_data(x, y):
+    fig, axes = plt.subplots(2, 5, figsize=(10, 5))
+    for i, ax in enumerate(axes.flatten()):
+        ax.imshow(x[i].reshape(8, 8), cmap='gray')
+        ax.set_title(f"Label: {y[i]}")
+        ax.axis('off')
+    plt.tight_layout()
     plt.show()
 # End Load and view --------------------------------------------------------------------------
 

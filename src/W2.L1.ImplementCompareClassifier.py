@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-
+from sklearn.linear_model import LogisticRegression
 
 def main():
     x, y = load_data()
@@ -16,7 +16,8 @@ def main():
     metrics("KNN", classifier, x_test, y_test)
     svm_classifier = implement_svm_classifier(x_train, y_train)
     metrics("SVM", svm_classifier, x_test, y_test)
-    
+    log_reg_classifier = implement_logistic_regression_classifier(x_train, y_train)
+    metrics("Logistic Regression", log_reg_classifier, x_test, y_test)
 
 
 
@@ -35,6 +36,11 @@ def implement_svm_classifier(x_train, y_train):
     svm_classifier = SVC(kernel='linear')
     svm_classifier.fit(x_train, y_train)
     return svm_classifier
+
+def implement_logistic_regression_classifier(x_train, y_train):
+    log_reg_classifier = LogisticRegression(max_iter=1000)
+    log_reg_classifier.fit(x_train, y_train)
+    return log_reg_classifier
 
 # End Implement Classifier -----------------------------------------------------------------
 

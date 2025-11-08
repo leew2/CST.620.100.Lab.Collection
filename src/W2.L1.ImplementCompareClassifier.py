@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV
 
 def main():
     x, y = load_data()
@@ -18,13 +19,23 @@ def main():
     metrics("SVM", svm_classifier, x_test, y_test)
     log_reg_classifier = implement_logistic_regression_classifier(x_train, y_train)
     metrics("Logistic Regression", log_reg_classifier, x_test, y_test)
+    best_knn = GridSearchCV_model(KNeighborsClassifier(), {'n_neighbors': [3, 5, 7]}, x_train, y_train)
+    metrics("Best KNN after Grid Search", best_knn, x_test, y_test)
 
 
+# Grid Search CV -----------------------------------------------------------------------------
+def GridSearchCV_model(model, param_grid, x_train, y_train):
+    grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
+    grid_search.fit(x_train, y_train)
+    best_model = grid_search.best_estimator_
+    return best_model
 
+# Metrics ---------------------------------------------------------------------------------
 def metrics(name, model, x_test, y_test):
     y_pred = model.predict(x_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f"{name} Accuracy: {accuracy:.4f}")
+# End Metrics ------------------------------------------------------------------------------
 
 # Implement Classifier ---------------------------------------------------------------------
 def implement_classifier(x_train, y_train):

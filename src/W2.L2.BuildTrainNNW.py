@@ -19,11 +19,24 @@ def main():
     model = Model(input=x_train.shape[1], hidden=10, output=len(set(y)))
     trainNN(model, x_train=x_train_tensor, y_train=y_train_tensor, crit=nn.CrossEntropyLoss(), opti=optim.Adam(model.parameters(), lr=0.01), ep=100)
 
+    with torch.no_grad():
+        y_pred = model(x_test_tensor)
+        y_pred_lab = torch.argmax(y_pred, dim=1)
+    acc = (y_pred_lab == y_test_tensor).sum().item()/len(y_test_tensor)
+    print(f'Model Accuracy: {acc:.4f}')
+    
+    plt.figure(figsize=(8, 4))
+    plt.bar(["Setosa", "Versicolor", "Virginica"], [int((y_pred_lab == i).sum()) for i in range(3)])
+    plt.xlabel("Class")
+    plt.ylabel("Predicted Count")
+    plt.title("Predicted Class Distribution")
+    plt.show()
+
+
     pass
 
 # train ------------------------------------------------------------------------
 def trainNN(model, x_train, y_train, crit, opti, ep=100):
-    
     for amount in range(ep):
         opti.zero_grad()
         outputs = model(x_train)

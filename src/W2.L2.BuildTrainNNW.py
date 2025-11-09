@@ -15,8 +15,33 @@ def main():
     y_train_tensor = torch.tensor(y_train, dtype=torch.long)
     y_test_tensor = torch.tensor(y_test, dtype=torch.long)
     print(f"Dataset Load \nX Tensor:{x_train_tensor.shape}\nY Tensor:{y_train_tensor.shape}")
+
+
+    model = Model(input=x_train.shape[1], hidden=10, output=len(set(y)))
     
+
     pass
+
+def Model(input, hidden, output):
+    model = twoLayerNN(input_size=input, hidden_size=hidden, output_size=output)
+    print("Model:", model)
+    return model
+
+# model ---------------------------------------------------------------------
+class twoLayerNN(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(twoLayerNN, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size, output_size)
+        self.soft = nn.Softmax(dim=1)
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        x = self.soft(x)
+        return x
+# end model -----------------------------------------------------------------
 
 # load ----------------------------------------------------------------------------------
 def get_data():

@@ -16,18 +16,32 @@ def main():
     y_test_tensor = torch.tensor(y_test, dtype=torch.long)
     print(f"Dataset Load \nX Tensor:{x_train_tensor.shape}\nY Tensor:{y_train_tensor.shape}")
 
-
     model = Model(input=x_train.shape[1], hidden=10, output=len(set(y)))
-    
+    trainNN(model, x_train=x_train_tensor, y_train=y_train_tensor, crit=nn.CrossEntropyLoss(), opti=optim.Adam(model.parameters(), lr=0.01), ep=100)
 
     pass
 
+# train ------------------------------------------------------------------------
+def trainNN(model, x_train, y_train, crit, opti, ep=100):
+    
+    for amount in range(ep):
+        opti.zero_grad()
+        outputs = model(x_train)
+        loss = crit(outputs, y_train)
+        loss.backward()
+        opti.step()
+
+        if amount % 10 == 0:
+            print(f"Epoch {amount}: Loss={loss.item():.4f}")
+
+# end train --------------------------------------------------------------------
+
+# model ---------------------------------------------------------------------
 def Model(input, hidden, output):
     model = twoLayerNN(input_size=input, hidden_size=hidden, output_size=output)
     print("Model:", model)
     return model
 
-# model ---------------------------------------------------------------------
 class twoLayerNN(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super(twoLayerNN, self).__init__()

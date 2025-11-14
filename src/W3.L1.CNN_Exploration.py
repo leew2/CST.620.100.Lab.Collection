@@ -4,16 +4,25 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transform
 import matplotlib.pyplot as plt
+from torchvision.models import resnet18, ResNet18_Weights
+
 
 def main():
     train, data = loadData()
 
     alex = AlexNET()
     print(alex)
-
+    res = load_resNet()
 
 
     pass
+
+# ResNet ------------------------------------------------------------------------
+def load_resNet():
+    res = resnet18(weights=ResNet18_Weights.DEFAULT)
+    print(res)
+    return res
+# -------------------------------------------------------------------------------
 
 # CNN ---------------------------------------------------------------------------
 class AlexNET(nn.Module):
@@ -38,8 +47,6 @@ class AlexNET(nn.Module):
         x = self.conv_layers(x)
         x = self.fc_layers(x)
         return x
-
-
 # -------------------------------------------------------------------------------
 
 # Load Data ---------------------------------------------------------------------

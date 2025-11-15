@@ -8,21 +8,39 @@ from torchvision.models import resnet18, ResNet18_Weights
 
 
 def main():
-    train, data = loadData()
-
+    train, test = loadData()
+    
+    train = reduce_data(train, fraction=0.5)
+    test = reduce_data(test, fraction=0.5)
+    
     alex = AlexNET()
     res = load_resNet()
 
     crit = nn.CrossEntropyLoss()
-    trainer(model=alex, loader=train, criterion=crit)
-    trainer(model=res, loader=train, criterion=crit)
+    model, acc_alex = trainer(model=alex, loader=train, test=test, criterion=crit)
+    model, acc_res = trainer(model=res, loader=train, test=test, criterion=crit)
     
+    plt.bar(['AlexNET', 'ResNet'], [acc_alex, acc_res])
+    plt.ylabel('Accuracy')
+    plt.title('Model Accuracy Comparison')
+    plt.show()
+
     pass
+
+# for Test and debugging --------------------------------------------------
+def reduce_data(loader, fraction=0.1):
+    reduced_size = int(len(loader.dataset) * fraction)
+    reduced_dataset = torch.utils.data.Subset(loader.dataset, range(reduced_size))
+    reduced_loader = torch.utils.data.DataLoader(reduced_dataset, batch_size=loader.batch_size, shuffle=True)
+    return reduced_loader
+
+# ----------------------------------------------------------------------------
 
 # ResNet ------------------------------------------------------------------------
 def load_resNet():
     res = resnet18(weights=ResNet18_Weights.DEFAULT)
     return res
+
 # -------------------------------------------------------------------------------
 
 # CNN ---------------------------------------------------------------------------
@@ -48,10 +66,26 @@ class AlexNET(nn.Module):
         x = self.conv_layers(x)
         x = self.fc_layers(x)
         return x
+    
+# -------------------------------------------------------------------------------
+
+# Metric ------------------------------------------------------------------------
+def evaluate(model, loader):
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for img, labels in loader:
+            outputs = model(img)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    accuracy = correct / total
+    return accuracy
+
 # -------------------------------------------------------------------------------
 
 # Train -------------------------------------------------------------------------
-def trainer(model, loader, criterion, epochs=2): # 2 due to hardware limitation
+def trainer(model, loader, test, criterion, epochs=2): # 2 due to hardware limitation
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     counter = 0
     for epoch in range(epochs):
@@ -62,8 +96,12 @@ def trainer(model, loader, criterion, epochs=2): # 2 due to hardware limitation
             loss.backward()
             optimizer.step()
             if counter % 100 ==0: # print every 100 data point
-                print(f'Trained {counter} data, Loss: {loss.item():.4f}')
+                print(f'Epoch {epoch+1} --- Trained {counter} data --- Loss: {loss.item():.4f}')
             counter +=1
+        print(f'--- Epoch {epoch+1} completed ---')
+    accuracy = evaluate(model, test)
+    print(f'Training Accuracy: {accuracy*100:.2f}%')
+    return model, accuracy
 
 # -------------------------------------------------------------------------------
 
@@ -85,9 +123,6 @@ def showImg(imgs):
     plt.imshow(imgs.data[0])
     plt.title(f"Sample Image - Class/Label: {imgs.targets[0]}")
     plt.show()
-        
-
-
 
 # -------------------------------------------------------------------------------
 

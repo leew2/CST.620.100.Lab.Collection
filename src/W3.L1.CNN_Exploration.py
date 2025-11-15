@@ -11,16 +11,17 @@ def main():
     train, data = loadData()
 
     alex = AlexNET()
-    print(alex)
     res = load_resNet()
 
-
+    crit = nn.CrossEntropyLoss()
+    trainer(model=alex, loader=train, criterion=crit)
+    trainer(model=res, loader=train, criterion=crit)
+    
     pass
 
 # ResNet ------------------------------------------------------------------------
 def load_resNet():
     res = resnet18(weights=ResNet18_Weights.DEFAULT)
-    print(res)
     return res
 # -------------------------------------------------------------------------------
 
@@ -47,6 +48,23 @@ class AlexNET(nn.Module):
         x = self.conv_layers(x)
         x = self.fc_layers(x)
         return x
+# -------------------------------------------------------------------------------
+
+# Train -------------------------------------------------------------------------
+def trainer(model, loader, criterion, epochs=2): # 2 due to hardware limitation
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    counter = 0
+    for epoch in range(epochs):
+        for img, labels in loader:
+            optimizer.zero_grad()
+            out = model(img)
+            loss = criterion(out, labels)
+            loss.backward()
+            optimizer.step()
+            if counter % 100 ==0: # print every 100 data point
+                print(f'Trained {counter} data, Loss: {loss.item():.4f}')
+            counter +=1
+
 # -------------------------------------------------------------------------------
 
 # Load Data ---------------------------------------------------------------------

@@ -25,7 +25,6 @@ def main():
     plt.title('Model Accuracy Comparison')
     plt.show()
 
-    pass
 
 # for Test and debugging --------------------------------------------------
 def reduce_data(loader, fraction=0.1):
